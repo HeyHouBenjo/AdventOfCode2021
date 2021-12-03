@@ -51,7 +51,7 @@ def findRating(currentData, pos=0, least=False):
 	return findRating(newData, pos + 1, least)
 
 
-oxygenGenerator = binaryToDecimal(findRating(data.copy()))
-co2Scrubber = binaryToDecimal(findRating(data.copy(), least=True))
+oxygenGenerator = binaryToDecimal(findRating(data))
+co2Scrubber = binaryToDecimal(findRating(data, least=True))
 print(oxygenGenerator, co2Scrubber)
 print(oxygenGenerator * co2Scrubber)
