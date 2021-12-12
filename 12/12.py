@@ -9,6 +9,7 @@ def getAdjacent(knot: str) -> set[str]:
 
 
 def solve():
+
 	def find(knot: str, visited: set[str], smallUsedTwice: bool) -> set[tuple[str, ...]]:
 		if knot == "end":
 			return {"end"}
