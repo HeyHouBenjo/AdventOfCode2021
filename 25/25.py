@@ -1,4 +1,9 @@
+import sys
+
 import numpy as np
+from PyQt5.QtCore import QTimer, QSize
+from PyQt5.QtGui import QPaintEvent, QPixmap, QImage, QPainter, QColor
+from PyQt5.QtWidgets import QApplication, QWidget, QLabel
 
 
 def readGrid(fileName):
@@ -38,4 +43,47 @@ def findPlace():
 	print(count)
 
 
-findPlace()
+class AnimatorWindow(QWidget):
+
+	def __init__(self):
+		super().__init__()
+		self.timer = QTimer(self)
+		self.timer.timeout.connect(self.step)
+		self.timer.setInterval(16)
+		self.timer.start()
+
+		self.grid = readGrid("input")
+		h, w = self.grid.shape
+		self.w = w * 5
+		self.h = h * 5
+		self.resize(self.w, self.h)
+		self.label = QLabel(self)
+		self.label.resize(self.w, self.h)
+
+	def getImage(self):
+		h, w = self.grid.shape
+		colorArray = np.zeros((w, h, 3), dtype=np.uint8)
+
+		# something is still wrong here ):
+		a = np.argwhere(self.grid == ">").T
+		b = np.argwhere(self.grid == "v").T
+		colorArray[a[1], a[0]] = [255, 0, 0]
+		colorArray[b[1], b[0]] = [0, 255, 0]
+
+		image = QImage(colorArray.data, w, h, 3 * w, QImage.Format_RGB888)
+		return image.scaled(self.w, self.h)
+
+	def step(self):
+		step(">", self.grid)
+		step("v", self.grid)
+
+		self.label.setPixmap(QPixmap.fromImage(self.getImage()))
+
+
+if __name__ == "__main__":
+	app = QApplication(sys.argv)
+
+	window = AnimatorWindow()
+	window.show()
+
+	app.exec()
