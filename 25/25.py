@@ -1,8 +1,8 @@
 import sys
 
 import numpy as np
-from PyQt5.QtCore import QTimer, QSize
-from PyQt5.QtGui import QPaintEvent, QPixmap, QImage, QPainter, QColor
+from PyQt5.QtCore import QTimer
+from PyQt5.QtGui import QPixmap, QImage
 from PyQt5.QtWidgets import QApplication, QWidget, QLabel
 
 
@@ -49,7 +49,7 @@ class AnimatorWindow(QWidget):
 		super().__init__()
 		self.timer = QTimer(self)
 		self.timer.timeout.connect(self.step)
-		self.timer.setInterval(16)
+		self.timer.setInterval(17)
 		self.timer.start()
 
 		self.grid = readGrid("input")
@@ -59,16 +59,19 @@ class AnimatorWindow(QWidget):
 		self.resize(self.w, self.h)
 		self.label = QLabel(self)
 		self.label.resize(self.w, self.h)
+		self.image = self.getImage()
+
+	def paintEvent(self, ev):
+		self.label.setPixmap(QPixmap.fromImage(self.image))
+		self.update()
 
 	def getImage(self):
 		h, w = self.grid.shape
-		colorArray = np.zeros((w, h, 3), dtype=np.uint8)
+		colorArray = np.zeros((h, w, 3), dtype=np.uint8)
 
-		# something is still wrong here ):
-		a = np.argwhere(self.grid == ">").T
-		b = np.argwhere(self.grid == "v").T
-		colorArray[a[1], a[0]] = [255, 0, 0]
-		colorArray[b[1], b[0]] = [0, 255, 0]
+		colorArray[:, :] = [40, 40, 90]
+		colorArray[self.grid == ">"] = [40, 255, 40]
+		colorArray[self.grid == "v"] = [255, 40, 40]
 
 		image = QImage(colorArray.data, w, h, 3 * w, QImage.Format_RGB888)
 		return image.scaled(self.w, self.h)
@@ -76,8 +79,7 @@ class AnimatorWindow(QWidget):
 	def step(self):
 		step(">", self.grid)
 		step("v", self.grid)
-
-		self.label.setPixmap(QPixmap.fromImage(self.getImage()))
+		self.image = self.getImage()
 
 
 if __name__ == "__main__":
